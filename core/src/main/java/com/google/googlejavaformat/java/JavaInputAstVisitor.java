@@ -273,9 +273,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
 
   protected static final Indent.Const ZERO = Indent.Const.ZERO;
   protected final int indentMultiplier;
-  protected final Indent.Const minusTwo;
   protected final Indent.Const minusFour;
-  protected final Indent.Const plusTwo;
   protected final Indent.Const plusFour;
 
   private static final ImmutableList<Op> breakList(Optional<BreakTag> breakTag) {
@@ -309,9 +307,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
   public JavaInputAstVisitor(OpsBuilder builder, int indentMultiplier) {
     this.builder = builder;
     this.indentMultiplier = indentMultiplier;
-    minusTwo = Indent.Const.make(-2, indentMultiplier);
     minusFour = Indent.Const.make(-4, indentMultiplier);
-    plusTwo = Indent.Const.make(+2, indentMultiplier);
     plusFour = Indent.Const.make(+4, indentMultiplier);
   }
 
@@ -478,13 +474,13 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
   public boolean visitArrayInitializer(List<? extends ExpressionTree> expressions) {
     int cols;
     if (expressions.isEmpty()) {
-      tokenBreakTrailingComment("{", plusTwo);
+      tokenBreakTrailingComment("{", plusFour);
       if (builder.peekToken().equals(Optional.of(","))) {
         token(",");
       }
-      token("}", plusTwo);
+      token("}", plusFour);
     } else if ((cols = argumentsAreTabular(expressions)) != -1) {
-      builder.open(plusTwo);
+      builder.open(plusFour);
       token("{");
       builder.forcedBreak();
       boolean first = true;
@@ -506,9 +502,9 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         builder.close();
         first = false;
       }
-      builder.breakOp(minusTwo);
+      builder.breakOp(minusFour);
       builder.close();
-      token("}", plusTwo);
+      token("}", plusFour);
     } else {
       // Special-case the formatting of array initializers inside annotations
       // to more eagerly use a one-per-line layout.
@@ -528,8 +524,8 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       boolean shortItems = hasOnlyShortItems(expressions);
       boolean allowFilledElementsOnOwnLine = shortItems || !inMemberValuePair;
 
-      builder.open(plusTwo);
-      tokenBreakTrailingComment("{", plusTwo);
+      builder.open(plusFour);
+      tokenBreakTrailingComment("{", plusFour);
       boolean hasTrailingComma = hasTrailingToken(builder.getInput(), expressions, ",");
       builder.breakOp(hasTrailingComma ? FillMode.FORCED : FillMode.UNIFIED, "", ZERO);
       if (allowFilledElementsOnOwnLine) {
@@ -549,9 +545,9 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       if (allowFilledElementsOnOwnLine) {
         builder.close();
       }
-      builder.breakOp(minusTwo);
+      builder.breakOp(minusFour);
       builder.close();
-      token("}", plusTwo);
+      token("}", plusFour);
     }
     return false;
   }
@@ -831,7 +827,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       builder.close();
     }
     builder.space();
-    tokenBreakTrailingComment("{", plusTwo);
+    tokenBreakTrailingComment("{", plusFour);
     ArrayList<VariableTree> enumConstants = new ArrayList<>();
     ArrayList<Tree> members = new ArrayList<>();
     for (Tree member : node.getMembers()) {
@@ -846,7 +842,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     }
     if (enumConstants.isEmpty() && members.isEmpty()) {
       if (builder.peekToken().equals(Optional.of(";"))) {
-        builder.open(plusTwo);
+        builder.open(plusFour);
         builder.forcedBreak();
         token(";");
         builder.forcedBreak();
@@ -855,7 +851,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         builder.open(ZERO);
         builder.forcedBreak();
         builder.blankLineWanted(BlankLineWanted.NO);
-        token("}", plusTwo);
+        token("}", plusFour);
         builder.close();
       } else {
         builder.open(ZERO);
@@ -864,7 +860,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         builder.close();
       }
     } else {
-      builder.open(plusTwo);
+      builder.open(plusFour);
       builder.blankLineWanted(BlankLineWanted.NO);
       builder.forcedBreak();
       builder.open(ZERO);
@@ -886,7 +882,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       builder.close();
       builder.close();
       if (builder.peekToken().equals(Optional.of(";"))) {
-        builder.open(plusTwo);
+        builder.open(plusFour);
         token(";");
         builder.forcedBreak();
         dropEmptyDeclarations();
@@ -896,7 +892,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       addBodyDeclarations(members, BracesOrNot.NO, FirstDeclarationsOrNot.NO);
       builder.forcedBreak();
       builder.blankLineWanted(BlankLineWanted.NO);
-      token("}", plusTwo);
+      token("}", plusFour);
       builder.close();
     }
     builder.guessToken(";");
@@ -1475,7 +1471,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       token(";");
     } else {
       builder.space();
-      builder.token("{", Doc.Token.RealOrImaginary.REAL, plusTwo, Optional.of(plusTwo));
+      builder.token("{", Doc.Token.RealOrImaginary.REAL, plusFour, Optional.of(plusFour));
     }
     builder.close();
 
@@ -1490,7 +1486,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     if (node.getBody().getStatements().isEmpty()) {
       builder.blankLineWanted(BlankLineWanted.NO);
     } else {
-      builder.open(plusTwo);
+      builder.open(plusFour);
       builder.forcedBreak();
       builder.blankLineWanted(BlankLineWanted.PRESERVE);
       visitStatements(node.getBody().getStatements());
@@ -1499,7 +1495,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       builder.blankLineWanted(BlankLineWanted.NO);
       markForPartialFormat();
     }
-    token("}", plusTwo);
+    token("}", plusFour);
   }
 
   @Override
@@ -1793,15 +1789,15 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     markForPartialFormat();
     builder.forcedBreak();
     if (node.getExpression() == null) {
-      token("default", plusTwo);
+      token("default", plusFour);
       token(":");
     } else {
-      token("case", plusTwo);
+      token("case", plusFour);
       builder.space();
       scan(node.getExpression(), null);
       token(":");
     }
-    builder.open(plusTwo);
+    builder.open(plusFour);
     visitStatements(node.getStatements());
     builder.close();
     return null;
@@ -1821,9 +1817,9 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     scan(skipParen(expression), null);
     token(")");
     builder.space();
-    tokenBreakTrailingComment("{", plusTwo);
+    tokenBreakTrailingComment("{", plusFour);
     builder.blankLineWanted(BlankLineWanted.NO);
-    builder.open(plusTwo);
+    builder.open(plusFour);
     boolean first = true;
     for (CaseTree caseTree : cases) {
       if (!first) {
@@ -2098,14 +2094,14 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         // TODO(cushon): is this needed?
         token(";");
       } else {
-        tokenBreakTrailingComment("{", plusTwo);
+        tokenBreakTrailingComment("{", plusFour);
         builder.blankLineWanted(BlankLineWanted.NO);
-        token("}", plusTwo);
+        token("}", plusFour);
       }
     } else {
       builder.open(ZERO);
-      builder.open(plusTwo);
-      tokenBreakTrailingComment("{", plusTwo);
+      builder.open(plusFour);
+      tokenBreakTrailingComment("{", plusFour);
       if (allowLeadingBlankLine == AllowLeadingBlankLine.NO) {
         builder.blankLineWanted(BlankLineWanted.NO);
       } else {
@@ -2121,7 +2117,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         builder.blankLineWanted(BlankLineWanted.PRESERVE);
       }
       markForPartialFormat();
-      token("}", plusTwo);
+      token("}", plusFour);
     }
   }
 
@@ -2138,7 +2134,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
         visitBlock((BlockTree) node, collapseEmptyOrNot, allowLeadingBlank, allowTrailingBlank);
         break;
       default:
-        builder.open(plusTwo);
+        builder.open(plusFour);
         builder.breakOp(" ");
         scan(node, null);
         builder.close();
@@ -2435,11 +2431,11 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     scan(node.getName(), null);
     builder.space();
     if (node.getDirectives().isEmpty()) {
-      tokenBreakTrailingComment("{", plusTwo);
+      tokenBreakTrailingComment("{", plusFour);
       builder.blankLineWanted(BlankLineWanted.NO);
-      token("}", plusTwo);
+      token("}", plusFour);
     } else {
-      builder.open(plusTwo);
+      builder.open(plusFour);
       token("{");
       builder.forcedBreak();
       Optional<Tree.Kind> previousDirective = Optional.empty();
@@ -3480,19 +3476,19 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
     if (bodyDeclarations.isEmpty()) {
       if (braces.isYes()) {
         builder.space();
-        tokenBreakTrailingComment("{", plusTwo);
+        tokenBreakTrailingComment("{", plusFour);
         builder.blankLineWanted(BlankLineWanted.NO);
         builder.open(ZERO);
-        token("}", plusTwo);
+        token("}", plusFour);
         builder.close();
       }
     } else {
       if (braces.isYes()) {
         builder.space();
-        tokenBreakTrailingComment("{", plusTwo);
+        tokenBreakTrailingComment("{", plusFour);
         builder.open(ZERO);
       }
-      builder.open(plusTwo);
+      builder.open(plusFour);
       boolean first = first0.isYes();
       boolean lastOneGotBlankLineBefore = false;
       PeekingIterator<Tree> it = Iterators.peekingIterator(bodyDeclarations.iterator());
@@ -3527,7 +3523,7 @@ public class JavaInputAstVisitor extends TreePathScanner<Void, Void> {
       markForPartialFormat();
       if (braces.isYes()) {
         builder.blankLineWanted(BlankLineWanted.NO);
-        token("}", plusTwo);
+        token("}", plusFour);
         builder.close();
       }
     }

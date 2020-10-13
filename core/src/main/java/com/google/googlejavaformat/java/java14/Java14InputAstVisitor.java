@@ -200,9 +200,9 @@ public class Java14InputAstVisitor extends JavaInputAstVisitor {
     markForPartialFormat();
     builder.forcedBreak();
     if (node.getExpressions().isEmpty()) {
-      token("default", plusTwo);
+      token("default", plusFour);
     } else {
-      token("case", plusTwo);
+      token("case", plusFour);
       builder.space();
       boolean first = true;
       for (ExpressionTree expression : node.getExpressions()) {
@@ -217,7 +217,7 @@ public class Java14InputAstVisitor extends JavaInputAstVisitor {
     switch (node.getCaseKind()) {
       case STATEMENT:
         token(":");
-        builder.open(plusTwo);
+        builder.open(plusFour);
         visitStatements(node.getStatements());
         builder.close();
         break;
